@@ -12,10 +12,34 @@ using std::string;
   strings are different lengths, each of the extra characters in the longer
   string also counts as an increase in 1 to the distance, up to the length of
   the secret; in other words, if m_secret has a 10 characters and the guess
-  has 100, the distance is 10.
+  has 100, the distance is 10. distanceMax = m_secret.length
+  you can get locked out by running out of guesses OR a way off guess
 */
 unsigned int Guesser::distance(string guess){
-  return 0;
+    int distance = 0;
+
+    if (guess.length() != m_secret.length()) {
+      if (guess.length() > m_secret.length()) {
+        distance = (guess.length() - m_secret.length()) % m_secret.length();
+        m_remaining--;
+      } else {
+        distance = m_secret.length() - guess.length();
+        m_remaining--;
+      }
+    }
+    for (int i = 0; i < m_secret.length(); i++) {
+      if (guess[i] != m_secret[i]) {
+        distance++;
+        m_remaining--;
+      }
+      if (distance > 2) {
+        m_remaining = 0;
+        distance = 3;
+        exit(1);
+      }
+    }
+
+    return distance;
 }
 
 /*
@@ -25,7 +49,8 @@ unsigned int Guesser::distance(string guess){
   otherwise, it will be truncated at that length.
 */
 Guesser::Guesser(string secret){
-
+    m_secret = secret;
+    m_remaining = 3;
 }
 
 /*
@@ -40,6 +65,9 @@ Guesser::Guesser(string secret){
   and the secret.
 */
 bool Guesser::match(string guess){
+  if (distance(guess) > 2 || m_remaining == 0) {
+    return false;
+  } 
   return true;
 }
 
@@ -51,6 +79,6 @@ bool Guesser::match(string guess){
   reset to three (3).
 */
 unsigned int Guesser::remaining(){
-  return 0;
+  return m_remaining;
 }
 
